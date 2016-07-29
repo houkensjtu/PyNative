@@ -7,10 +7,6 @@ import re
 import json
 import pdb
 
-# proxies will only be necessary when you are behind an evil firewall...
-proxies = {'http':'http://ch40203515%40shi-g.com:2N%21n9Ly%24\
-          @tnsproxy.shi.co.jp:8080','https':'http://ch4020351\
-          5%40shi-g.com:2N%21n9Ly%24@tnsproxy.shi.co.jp:8080'}
 
 # Get the target page by urlopen, return a html object.
 def getHtmlUrlopen(url):
