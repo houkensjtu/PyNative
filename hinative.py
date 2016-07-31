@@ -40,7 +40,7 @@ def getAskTokenRequests(session,url):
      token = bsobj.find("input",{"name":"authenticity_token"})['value']
      print("Your token is: %s" %token)
      return token
- 
+
 # Get the user's ID from "setting" page, need a Requests session as argument. 
 def getUserID(session):
     response = session.get('https://hinative.com/en-US/setting')
@@ -122,17 +122,22 @@ bsobj = BeautifulSoup(questionResult.text,"html.parser")
 # Find the line questionID is in.
 questionID_line = bsobj.find("div",{"class":"box_content"})['ng_init']
 
+# Grab the ID by Regular expression.
 questionID = re.findall("bookmarkable_id='(.*?)'", questionID_line)[0]
 
 print('Your question id is:%s'%questionID)
 
+# Fold the data we want to save into a dict object.
 data = {}
 data['questionID'] = questionID
 data['questionContent'] = bsobj.find("title").text
 data['questionAnswer'] = ''
 
-with open('question_log.json', 'w') as outfile:
-    json.dump(data, outfile)
+# Write data into a json file.
+# Indent=2 to make the printing prettier, and give it a new-line everytime.
+with open('question_log.json', 'a') as outfile:
+    json.dump(data, outfile,indent=2)
+    outfile.write('\n')
 outfile.close()
 
 print('Victory!!')
