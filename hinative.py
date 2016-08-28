@@ -78,6 +78,35 @@ def askQuestion(session,token):
     
     return session.post('https://hinative.com/en-US/questions',params=params)
 
+
+#-1.Update the question log; Append new answers to the entry if there is any.
+
+# First, open the log file and extract log data.
+with open('question_log.json', 'r') as outfile:
+    question_data = json.load(outfile)
+outfile.close()
+
+# Next, for each ID, re-load the question page to find if there is new answer.
+for question in question_data:
+    questionID = question['questionID']
+    session = requests.Session()
+
+    answerPage = 'https://hinative.com/en-US/questions/'+questionID
+    questionPage = requests.get(answerPage)
+
+    bsobj = BeautifulSoup(questionPage.text,"html.parser")
+
+    # If a new answer is found, append it to the attribute.    
+    if(bsobj.find("div",{"ng_hide":"isEditing"})):
+        answer = bsobj.find("div",{"ng_hide":"isEditing"}).text
+        print(answer)
+        question['questionAnswer']+=answer
+
+# Finally, re-write the updated data back into the file.
+with open('question_log.json', 'w') as outfile:
+    json.dump(question_data,outfile)
+outfile.close()
+        
 # 0.Prepare the URL will be used
 loginUrl = 'https://hinative.com/en-US/users/sign_in'
 askQuestionUrl = 'https://hinative.com/en-US/questions/type'
@@ -135,9 +164,16 @@ data['questionAnswer'] = ''
 
 # Write data into a json file.
 # Indent=2 to make the printing prettier, and give it a new-line everytime.
-with open('question_log.json', 'a') as outfile:
-    json.dump(data, outfile,indent=2)
-    outfile.write('\n')
+
+with open('question_log.json', 'r') as outfile:
+    question_data = json.load(outfile)
+
+# Use append so that instead of a single json obj, it become a array of objs.
+question_data.append(data)
+    
+with open('question_log.json', 'w') as outfile:
+    json.dump(question_data, outfile)
+
 outfile.close()
 
 print('Victory!!')
