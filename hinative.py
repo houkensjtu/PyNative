@@ -89,18 +89,29 @@ outfile.close()
 # Next, for each ID, re-load the question page to find if there is new answer.
 for question in question_data:
     questionID = question['questionID']
+    print("questionID: " + questionID)
+    oldAnswer = question['questionAnswer']
     session = requests.Session()
-
     answerPage = 'https://hinative.com/en-US/questions/'+questionID
     questionPage = requests.get(answerPage)
 
     bsobj = BeautifulSoup(questionPage.text,"html.parser")
 
-    # If a new answer is found, append it to the attribute.    
-    if(bsobj.find("div",{"ng_hide":"isEditing"})):
-        answer = bsobj.find("div",{"ng_hide":"isEditing"}).text
-        print(answer)
-        question['questionAnswer']+=answer
+    # If a new answer is found, append it to the attribute.
+
+    # answers is a array of all the answers found on the page.
+    answers = bsobj.findAll("a",{"data-resource":"answer"})
+
+    # In the answers array, check if there is new answer
+    for singleAnswer in answers:
+        if singleAnswer.text not in oldAnswer:
+            print("You got a new answer from others !!")
+            print(singleAnswer)
+            # Can not display Japanese for the moment...
+            oldAnswer.append(singleAnswer.text)
+        else:
+            print("You don't have new answer from others !!")
+        
 
 # Finally, re-write the updated data back into the file.
 with open('question_log.json', 'w') as outfile:
@@ -160,7 +171,8 @@ print('Your question id is:%s'%questionID)
 data = {}
 data['questionID'] = questionID
 data['questionContent'] = bsobj.find("title").text
-data['questionAnswer'] = ''
+# Answer should also be an array, to hold mutiple answers.
+data['questionAnswer'] = ['']
 
 # Write data into a json file.
 # Indent=2 to make the printing prettier, and give it a new-line everytime.
