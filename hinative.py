@@ -110,7 +110,7 @@ for question in question_data:
             # Can not display Japanese for the moment...
             oldAnswer.append(singleAnswer.text)
         else:
-            print("You don't have new answer from others !!")
+            print(singleAnswer)
         
 
 # Finally, re-write the updated data back into the file.
